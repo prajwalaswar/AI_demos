@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi-Speaking AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .upload-section {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #764ba2;
+            background-color: #f8f9ff;
+        }
+
+        .upload-label {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 600;
+        }
+
+        .upload-label:hover {
+            transform: scale(1.05);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .process-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .process-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .record-section {
+            background: #f8f9ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .record-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        .record-btn.stop {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        .record-status {
+            margin: 15px 0;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 20px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .result-text {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 10px;
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #f44;
+            padding: 15px;
+            border-radius: 10px;
+            color: #c33;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success-icon {
+            color: #4caf50;
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ हिंदी AI सहायक</h1>
+        <p class="subtitle">Hindi-Speaking AI Assistant</p>
+
+        <!-- Live Recording Section -->
+        <div class="record-section">
+            <h3 style="margin-bottom: 15px; color: #667eea;">🎤 Live Speech Recognition</h3>
+            <button class="record-btn" id="recordBtn">
+                🎤 Start Listening
+            </button>
+            <div class="record-status" id="recordStatus">
+                Click "Start Listening" to speak Hindi directly (no file upload needed)
+            </div>
+            <div id="speechTextArea" style="display: none; margin-top: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9; min-height: 60px; font-family: 'Segoe UI', sans-serif; color: #333;">
+                <strong>Your Speech:</strong>
+                <div id="speechText" style="margin-top: 5px; font-size: 14px; line-height: 1.4;"></div>
+            </div>
+        </div>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <!-- File Upload Section -->
+        <div class="upload-section">
+            <h3 style="margin-bottom: 15px; color: #667eea;">📁 Upload Audio File</h3>
+            <label for="audioFile" class="upload-label">
+                📁 Choose Hindi Audio File
+            </label>
+            <input type="file" id="audioFile" accept="audio/*">
+            <div class="file-name" id="fileName">No file chosen</div>
+            <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                Upload an audio file to transcribe with Gemini AI
+            </p>
+        </div>
+
+        <button class="process-btn" id="processBtn" disabled>
+            🚀 Process Audio
+        </button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #667eea;">Processing your audio...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result-section" id="results">
+            <div class="success-icon">✅</div>
+            
+            <div class="result-box">
+                <span class="result-label">📝 Transcription (Hindi):</span>
+                <div class="result-text" id="transcription"></div>
+            </div>
+
+            <div class="result-box">
+                <span class="result-label">💬 AI Response (Hindi):</span>
+                <div class="result-text" id="response"></div>
+            </div>
+
+            <div class="result-box">
+                <span class="result-label">🔊 Audio Response:</span>
+                <audio controls class="audio-player" id="audioPlayer">
+                    Your browser does not support audio playback.
+                </audio>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // UI Elements
+        const audioFileInput = document.getElementById('audioFile');
+        const fileNameDisplay = document.getElementById('fileName');
+        const processBtn = document.getElementById('processBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorDiv = document.getElementById('error');
+        const transcriptionDiv = document.getElementById('transcription');
+        const responseDiv = document.getElementById('response');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        // Recording Elements
+        const recordBtn = document.getElementById('recordBtn');
+        const recordStatus = document.getElementById('recordStatus');
+        const recordedAudio = document.getElementById('recordedAudio');
+        const speechTextArea = document.getElementById('speechTextArea');
+        const speechText = document.getElementById('speechText');
+
+        // Recording variables
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recordedBlob = null;
+        let isRecording = false;
+        
+        // Web Speech API variables
+        let recognition = null;
+        let isListening = false;
+        let currentTranscription = '';
+        let fullTranscription = '';  // Accumulate all speech segments
+        let speechSupported = false;
+        
+        // Initialize Web Speech API
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'hi-IN'; // Hindi language
+                
+                recognition.onstart = () => {
+                    console.log('Speech recognition started');
+                    isListening = true;
+                };
+                
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    // Get only the new results from this event
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    // Add final results to full transcription
+                    if (finalTranscript) {
+                        fullTranscription += finalTranscript + ' ';
+                        console.log('Added to full transcription:', finalTranscript);
+                    }
+                    
+                    // Show current segment + accumulated text
+                    const displayText = fullTranscription + (interimTranscript || '');
+                    currentTranscription = displayText;
+                    
+                    // Show real-time transcription
+                    if (displayText.trim()) {
+                        recordStatus.textContent = `Listening... (${displayText.trim().split(' ').length} words)`;
+                        recordStatus.style.color = '#27ae60';
+                        
+                        // Update the speech text area
+                        speechText.textContent = displayText.trim();
+                        speechTextArea.style.display = 'block';
+                    }
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        recordStatus.textContent = 'Microphone permission denied';
+                    } else {
+                        recordStatus.textContent = `Speech recognition error: ${event.error}`;
+                    }
+                    recordStatus.style.color = '#e74c3c';
+                };
+                
+                recognition.onend = () => {
+                    console.log('Speech recognition ended');
+                    isListening = false;
+                    
+                    // Auto-restart if we're still in recording mode
+                    if (isRecording && !isListening) {
+                        console.log('Auto-restarting speech recognition...');
+                        setTimeout(() => {
+                            if (isRecording) {
+                                try {
+                                    recognition.start();
+                                } catch (error) {
+                                    console.log('Error restarting recognition:', error);
+                                }
+                            }
+                        }, 100);
+                    }
+                };
+                
+                speechSupported = true;
+                return true;
+            } else {
+                console.warn('Speech Recognition not supported');
+                speechSupported = false;
+                return false;
+            }
+        }
+
+        // Initialize recording functionality
+        async function initializeRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 44100
+                    } 
+                });
+                
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = () => {
+                    recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(recordedBlob);
+                    recordedAudio.src = audioUrl;
+                    recordedAudio.style.display = 'block';
+                    
+                    // Enable process button
+                    processBtn.disabled = false;
+                    recordStatus.textContent = `Recording saved! Click "Process Audio" to analyze.`;
+                    recordStatus.style.color = '#27ae60';
+                };
+                
+                return true;
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                showError('Cannot access microphone. Please check permissions.');
+                return false;
+            }
+        }
+
+        // Initialize Speech Recognition on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSpeechRecognition();
+        });
+
+        // Recording button handler - New Web Speech API approach
+        recordBtn.addEventListener('click', async () => {
+            if (!isRecording) {
+                // Start live recording with Web Speech API
+                if (!speechSupported) {
+                    showError('Speech recognition not supported in this browser. Please use Chrome or Edge.');
+                    return;
+                }
+                
+                if (!recognition) {
+                    const initialized = initializeSpeechRecognition();
+                    if (!initialized) return;
+                }
+                
+                // Reset transcription for new session
+                currentTranscription = '';
+                fullTranscription = '';  // Clear accumulated text
+                
+                // Start speech recognition
+                try {
+                    recognition.start();
+                    isRecording = true;
+                    
+                    recordBtn.textContent = '⏹️ Stop Listening';
+                    recordBtn.classList.add('recording');
+                    recordBtn.classList.add('stop');
+                    recordStatus.textContent = 'Listening... Speak in Hindi now!';
+                    recordStatus.style.color = '#e74c3c';
+                    
+                    // Hide previous results
+                    results.style.display = 'none';
+                    errorDiv.style.display = 'none';
+                    speechTextArea.style.display = 'none';
+                    
+                    // Clear file selection
+                    audioFileInput.value = '';
+                    fileNameDisplay.textContent = 'No file chosen';
+                    
+                } catch (error) {
+                    console.error('Error starting speech recognition:', error);
+                    showError('Error starting speech recognition: ' + error.message);
+                }
+                
+            } else {
+                // Stop recording
+                if (recognition && isListening) {
+                    recognition.stop();
+                }
+                isRecording = false;
+                
+                recordBtn.textContent = '🎤 Start Listening';
+                recordBtn.classList.remove('recording');
+                recordBtn.classList.remove('stop');
+                
+                // Use the full accumulated transcription
+                const finalText = (fullTranscription + currentTranscription).trim();
+                
+                if (finalText) {
+                    recordStatus.textContent = 'Processing your speech...';
+                    recordStatus.style.color = '#667eea';
+                    
+                    console.log('Processing full transcription:', finalText);
+                    
+                    // Process the full accumulated transcription
+                    await processLiveTranscription(finalText);
+                } else {
+                    recordStatus.textContent = 'No speech detected. Please try again.';
+                    recordStatus.style.color = '#e74c3c';
+                }
+            }
+        });
+
+        // File selection handler
+        audioFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileNameDisplay.textContent = `Selected: ${file.name}`;
+                processBtn.disabled = false;
+                
+                // Clear recording
+                recordedBlob = null;
+                recordedAudio.style.display = 'none';
+                recordStatus.textContent = 'Click "Start Listening" to speak Hindi directly';
+                recordStatus.style.color = '#667eea';
+            } else {
+                fileNameDisplay.textContent = 'No file chosen';
+                if (!recordedBlob) {
+                    processBtn.disabled = true;
+                }
+            }
+            // Hide previous results
+            results.style.display = 'none';
+            errorDiv.style.display = 'none';
+        });
+
+        // Process live transcription (Web Speech API result)
+        async function processLiveTranscription(transcription) {
+            try {
+                // Reset UI
+                errorDiv.style.display = 'none';
+                results.style.display = 'none';
+                loading.style.display = 'block';
+
+                // Send transcription directly to backend for response generation
+                const response = await fetch(`${API_BASE_URL}/api/process-text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: transcription
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to process text');
+                }
+
+                const data = await response.json();
+
+                // Display results
+                transcriptionDiv.textContent = data.transcription || transcription;
+                responseDiv.textContent = data.response;
+                audioPlayer.src = `${API_BASE_URL}${data.audio_url}`;
+
+                // Show results
+                loading.style.display = 'none';
+                results.style.display = 'block';
+
+                // Auto-play audio response
+                setTimeout(() => {
+                    audioPlayer.play().catch(err => {
+                        console.log('Auto-play prevented:', err);
+                    });
+                }, 500);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'An error occurred while processing the text');
+                loading.style.display = 'none';
+            }
+        }
+
+        // Process button handler (for file uploads only)
+        processBtn.addEventListener('click', async () => {
+            // Check if we have a file (live recording is processed automatically)
+            const file = audioFileInput.files[0];
+            
+            if (!file) {
+                showError('Please select an audio file to upload and process!');
+                return;
+            }
+
+            // Reset UI
+            errorDiv.style.display = 'none';
+            results.style.display = 'none';
+            loading.style.display = 'block';
+            processBtn.disabled = true;
+
+            try {
+                // Create form data for file upload
+                const formData = new FormData();
+                formData.append('audio_file', file);
+
+                // Send request to backend
+                const response = await fetch(`${API_BASE_URL}/api/process-audio`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to process audio');
+                }
+
+                const data = await response.json();
+
+                // Display results
+                transcriptionDiv.textContent = data.transcription;
+                responseDiv.textContent = data.response;
+                audioPlayer.src = `${API_BASE_URL}${data.audio_url}`;
+
+                // Show results
+                loading.style.display = 'none';
+                results.style.display = 'block';
+
+                // Auto-play audio response
+                setTimeout(() => {
+                    audioPlayer.play().catch(err => {
+                        console.log('Auto-play prevented:', err);
+                    });
+                }, 500);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'An error occurred while processing the audio');
+                loading.style.display = 'none';
+                processBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            errorDiv.textContent = `❌ Error: ${message}`;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Project specific
+backend/uploads/*
+backend/outputs/*
+backend/temp/*
+!backend/uploads/.gitkeep
+!backend/outputs/.gitkeep
+!backend/temp/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Audio files (except samples)
+*.mp3
+*.wav
+*.m4a
+*.ogg
+*.webm
+*.weba
+!backend/sample_audio/*.mp3
+!backend/sample_audio/*.wav
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
